@@ -27,7 +27,7 @@ Contact the operator to obtain the current public key.
 
 # Cryptocurrency donation wallets (add your wallet addresses here)
 CRYPTO_WALLETS = {
-    "bitcoin": os.environ.get("TANGOWEB_WALLET_BITCOIN", ""),
-    "ethereum": os.environ.get("TANGOWEB_WALLET_ETHEREUM", ""),
-    "monero": os.environ.get("TANGOWEB_WALLET_MONERO", ""),
+    "bitcoin": os.environ.get("TANGOWEB_WALLET_BITCOIN", "# Enter your wallet here"),
+    "ethereum": os.environ.get("TANGOWEB_WALLET_ETHEREUM", "# Enter your wallet here"),
+    "monero": os.environ.get("TANGOWEB_WALLET_MONERO", "# Enter your wallet here"),
 }
