@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}TangoWeb — Privacy-first search{% endblock %}
+
+{% block body %}
+<main class="home">
+  <h1 class="home-logo">
+    <span class="logo-tango">Tango</span><span class="logo-web">Web</span>
+  </h1>
+
+  <div class="home-search">
+    <form class="search-form" action="{{ url_for('search_page') }}" method="get" role="search">
+      <div class="search-bar">
+        <input
+          class="search-input"
+          type="search"
+          name="q"
+          placeholder="Search the web privately"
+          autofocus
+          autocomplete="off"
+          aria-label="Search query"
+        >
+        <button class="search-submit" type="submit" aria-label="Search">&#128269;</button>
+      </div>
+    </form>
+  </div>
+
+  <p class="home-tagline">
+    <strong>Privacy first.</strong> No JavaScript. No trackers. Your searches stay between you and TangoWeb.
+  </p>
+
+  <nav class="home-links">
+    <a href="{{ url_for('privacy') }}">Privacy</a>
+    <a href="{{ url_for('contact') }}">Contact</a>
+    <a href="{{ url_for('donate') }}">Donate</a>
+    <a href="{{ github_url }}" target="_blank" rel="noopener noreferrer">GitHub</a>
+    <a href="{{ url_for('toggle_dark_mode') }}" class="dark-mode-toggle" title="Toggle dark mode">{% if dark_mode %}☀️{% else %}🌙{% endif %}</a>
+  </nav>
+</main>
+
+<footer class="footer">
+</footer>
+{% endblock %}

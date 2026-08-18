@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Contact TangoWeb Operator{% endblock %}
+
+{% block body %}
+<header class="header">
+  <div class="header-inner">
+    <a href="{{ url_for('index') }}" class="logo">
+      <span class="logo-tango">Tango</span><span class="logo-web">Web</span>
+    </a>
+    <nav class="header-nav">
+      <a href="{{ url_for('privacy') }}">Privacy</a>
+      <a href="{{ url_for('donate') }}">Donate</a>
+      <a href="{{ github_url }}" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <a href="{{ url_for('toggle_dark_mode') }}" class="dark-mode-toggle" title="Toggle dark mode">{% if dark_mode %}☀️{% else %}🌙{% endif %}</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page-content">
+  <h1>Contact TangoWeb Operator</h1>
+
+  <section class="contact-section">
+    <h2>Display Name</h2>
+    <p><strong>{{ operator.display_name }}</strong></p>
+  </section>
+
+  <section class="contact-section">
+    <h2>Email</h2>
+    <p>
+      <a href="mailto:{{ operator.email }}">{{ operator.email }}</a>
+    </p>
+  </section>
+
+  <section class="contact-section">
+    <h2>Jabber / XMPP</h2>
+    <p>
+      <code>{{ operator.jabber }}</code>
+    </p>
+  </section>
+
+  <section class="contact-section">
+    <h2>PGP Fingerprint</h2>
+    <p>
+      <code>{{ operator.pgp_fingerprint }}</code>
+    </p>
+  </section>
+
+  <section class="contact-section">
+    <h2>PGP Public Key</h2>
+    <pre class="pgp-key">{{ operator.pgp_key }}</pre>
+  </section>
+
+  <nav class="page-nav">
+    <a href="{{ url_for('index') }}">← Back to Home</a>
+  </nav>
+</main>
+{% endblock %}

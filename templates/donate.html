@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Donate — TangoWeb{% endblock %}
+
+{% block body %}
+<header class="header">
+  <div class="header-inner">
+    <a class="logo" href="{{ url_for('index') }}">
+      <span class="logo-tango">Tango</span><span class="logo-web">Web</span>
+    </a>
+    <nav class="header-nav">
+      <a href="{{ url_for('privacy') }}">Privacy</a>
+      <a href="{{ url_for('contact') }}">Contact</a>
+      <a href="{{ github_url }}" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <a href="{{ url_for('toggle_dark_mode') }}" class="dark-mode-toggle" title="Toggle dark mode">{% if dark_mode %}☀️{% else %}🌙{% endif %}</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page-content">
+  <h1>Donate to this dev</h1>
+  <p>
+    TangoWeb is free, open source, and run without ads or trackers. If it's
+    useful to you, consider chipping in — every bit helps keep the lights on.
+  </p>
+
+  {% if wallets %}
+    {% for name, address in wallets.items() %}
+    <section class="contact-section">
+      <h2>{{ name | capitalize }}</h2>
+      <p><code>{{ address }}</code></p>
+    </section>
+    {% endfor %}
+  {% else %}
+    <section class="contact-section">
+      <p>
+        No donation wallets have been configured yet. The operator can add
+        addresses via the <code>TANGOWEB_WALLET_*</code> environment variables
+        (see <code>config.py</code>), and they'll appear here automatically.
+      </p>
+    </section>
+  {% endif %}
+
+  <section class="contact-section">
+    <h2>Other ways to help</h2>
+    <ul>
+      <li>Star or contribute on <a href="{{ github_url }}" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+      <li>Report bugs or suggest features via <a href="{{ url_for('contact') }}">Contact</a></li>
+      <li>Tell a privacy-minded friend about TangoWeb</li>
+    </ul>
+  </section>
+
+  <nav class="page-nav">
+    <a href="{{ url_for('index') }}">← Back to Home</a>
+  </nav>
+</main>
+{% endblock %}

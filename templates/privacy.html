@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Privacy — TangoWeb{% endblock %}
+
+{% block body %}
+<header class="header">
+  <div class="header-inner">
+    <a class="logo" href="{{ url_for('index') }}">
+      <span class="logo-tango">Tango</span><span class="logo-web">Web</span>
+    </a>
+    <nav class="header-nav">
+      <a href="{{ url_for('contact') }}">Contact</a>
+      <a href="{{ url_for('donate') }}">Donate</a>
+      <a href="{{ github_url }}" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <a href="{{ url_for('toggle_dark_mode') }}" class="dark-mode-toggle" title="Toggle dark mode">{% if dark_mode %}☀️{% else %}🌙{% endif %}</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page-content">
+  <h1>Privacy Policy</h1>
+  <p>TangoWeb is built for privacy nerds, by privacy nerds. We respect your right to privacy online. We'll never ask for your information, searches, or keep logs on you.</p>
+
+  <h2>Open Source</h2>
+  <p>TangoWeb is open source, meaning you can request to see the site's source code or visit our hotlink.</p>
+
+  <h2>No trackers</h2>
+  <ul>
+    <li>No analytics or advertising scripts</li>
+    <li>No cookies</li>
+    <li>No search history stored on our servers</li>
+    <li>Strict <code>Referrer-Policy: no-referrer</code> headers</li>
+    <li>Content Security Policy blocks all scripts</li>
+  </ul>
+
+  <h2>Server-side search</h2>
+  <p>When you search, your query is sent to this TangoWeb server only. The server then fetches results using the DDGS library and DuckDuckGo's instant answer API. Your browser never contacts search engines or trackers directly for search queries.</p>
+
+  <h2>External links</h2>
+  <p>Result links take you to third-party websites. Those sites have their own privacy practices. Image and video thumbnails are loaded with <code>referrerpolicy="no-referrer"</code> to avoid leaking your visit.</p>
+
+  <h2>Data sources</h2>
+  <ul>
+    <li>Web, image, video, and file results — DDGS metasearch</li>
+    <li>Information box — DuckDuckGo instant answers and Wikipedia (via DDGS)</li>
+  </ul>
+
+  <p><a href="{{ url_for('index') }}">&larr; Back to TangoWeb</a></p>
+</main>
+{% endblock %}

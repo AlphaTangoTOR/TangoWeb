@@ -1,0 +1,257 @@
+{% macro search_url(q, tab='all', page=1, region='us-en', safesearch='moderate') -%}
+{{ url_for('search_page', q=q, t=tab, p=page, r=region, s=safesearch) }}
+{%- endmacro %}
+
+{% macro search_form(query, tab, region, safesearch) %}
+<form class="search-form" action="{{ url_for('search_page') }}" method="get" role="search">
+  <input type="hidden" name="t" value="{{ tab }}">
+  <input type="hidden" name="r" value="{{ region }}">
+  <input type="hidden" name="s" value="{{ safesearch }}">
+  <div class="search-bar">
+    <input
+      class="search-input"
+      type="search"
+      name="q"
+      value="{{ query }}"
+      aria-label="Search query"
+      autocomplete="off"
+    >
+    <button class="search-submit" type="submit" aria-label="Search">&#128269;</button>
+  </div>
+</form>
+{% endmacro %}
+
+{% macro info_panel(info) %}
+{% if info.visible %}
+<aside class="info-box" aria-label="Information">
+  {% if info.image_url %}
+  <img class="info-image" src="{{ info.image_url }}" alt="" referrerpolicy="no-referrer" loading="lazy">
+  {% endif %}
+
+  <h2>{{ info.heading }}</h2>
+
+  {% if info.abstract %}
+  <p class="info-abstract">{{ info.abstract }}</p>
+  {% endif %}
+
+  {% if info.wikipedia_summary and info.abstract != info.wikipedia_summary %}
+  <p class="info-abstract">{{ info.wikipedia_summary }}</p>
+  {% endif %}
+
+  <p class="info-source">
+    {% if info.wikipedia_url %}
+    <a class="info-wiki-badge" href="{{ info.wikipedia_url }}" rel="noopener noreferrer">Wikipedia</a>
+    {% endif %}
+    {% if info.source %}
+    Source: {% if info.source_url %}<a href="{{ info.source_url }}" rel="noopener noreferrer">{{ info.source }}</a>{% else %}{{ info.source }}{% endif %}
+    {% endif %}
+  </p>
+
+  {% if info.related %}
+  <div class="info-related">
+    <h3>Related</h3>
+    <ul>
+      {% for item in info.related %}
+      <li><a href="{{ item.url }}" rel="noopener noreferrer">{{ item.text }}</a></li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+</aside>
+{% endif %}
+{% endmacro %}
+
+{% extends "base.html" %}
+
+{% block title %}{{ results.query }} — TangoWeb{% endblock %}
+
+{% block body %}
+<header class="header">
+  <div class="header-inner">
+    <a class="logo" href="{{ url_for('index') }}">
+      <span class="logo-tango">Tango</span><span class="logo-web">Web</span>
+    </a>
+    {{ search_form(results.query, results.tab, results.region, results.safesearch) }}
+    <nav class="header-nav">
+      <a href="{{ url_for('privacy') }}">Privacy</a>
+      <a href="{{ url_for('contact') }}">Contact</a>
+      <a href="{{ url_for('donate') }}">Donate</a>
+      <a href="{{ github_url }}" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <a href="{{ url_for('toggle_dark_mode') }}" class="dark-mode-toggle" title="Toggle dark mode">{% if dark_mode %}☀️{% else %}🌙{% endif %}</a>
+    </nav>
+  </div>
+</header>
+
+<nav class="tabs" aria-label="Search categories">
+  {% set tabs = [('all', 'All'), ('web', 'Web'), ('images', 'Images'), ('videos', 'Videos'), ('files', 'Files')] %}
+  {% for key, label in tabs %}
+  <a
+    class="tab{% if results.tab == key %} active{% endif %}"
+    href="{{ search_url(results.query, key, 1, results.region, results.safesearch) }}"
+  >{{ label }}</a>
+  {% endfor %}
+</nav>
+
+<div class="filters">
+  <form class="filter-form" action="{{ url_for('search_page') }}" method="get">
+    <input type="hidden" name="q" value="{{ results.query }}">
+    <input type="hidden" name="t" value="{{ results.tab }}">
+    <input type="hidden" name="s" value="{{ results.safesearch }}">
+    <label for="region">Region</label>
+    <select name="r" id="region">
+      {% for code, name in regions.items() %}
+      <option value="{{ code }}"{% if results.region == code %} selected{% endif %}>{{ name }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit">Apply</button>
+  </form>
+
+  <form class="filter-form" action="{{ url_for('search_page') }}" method="get">
+    <input type="hidden" name="q" value="{{ results.query }}">
+    <input type="hidden" name="t" value="{{ results.tab }}">
+    <input type="hidden" name="r" value="{{ results.region }}">
+    <label for="safesearch">Safe search</label>
+    <select name="s" id="safesearch">
+      {% for opt in safesearch_options %}
+      <option value="{{ opt }}"{% if results.safesearch == opt %} selected{% endif %}>{{ opt|capitalize }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit">Apply</button>
+  </form>
+</div>
+
+{% set show_panel = results.info.visible and results.tab in ('all', 'web') %}
+
+<div class="results-layout{% if not show_panel %} no-panel{% endif %}">
+  <div class="results-main">
+    {% if results.error %}
+    <div class="alert alert-error">{{ results.error }}</div>
+    {% endif %}
+
+    {% if results.tab in ('all', 'web') %}
+      {% if results.web %}
+      <p class="stats">Web results for <strong>{{ results.query }}</strong></p>
+      {% for item in results.web %}
+      <article class="result-item">
+        <div class="result-url">{{ item.href }}</div>
+        <h3 class="result-title">
+          <a href="{{ item.href }}" rel="noopener noreferrer">{{ item.title }}</a>
+        </h3>
+        <p class="result-snippet">{{ item.body }}</p>
+      </article>
+      {% endfor %}
+      {% endif %}
+    {% endif %}
+
+    {% if results.tab == 'all' and results.images %}
+    <h2 class="section-heading">Images</h2>
+    <div class="image-preview-row">
+      {% for img in results.images %}
+      <div class="image-preview">
+        <a href="{{ search_url(results.query, 'images', 1, results.region, results.safesearch) }}">
+          <img src="{{ img.thumbnail or img.image }}" alt="{{ img.title }}" referrerpolicy="no-referrer" loading="lazy">
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if results.tab == 'images' %}
+      {% if results.images %}
+      <div class="image-grid">
+        {% for img in results.images %}
+        <article class="image-card">
+          <a href="{{ img.url or img.image }}" rel="noopener noreferrer">
+            <img src="{{ img.thumbnail or img.image }}" alt="{{ img.title }}" referrerpolicy="no-referrer" loading="lazy">
+          </a>
+          <div class="image-meta">
+            <div class="image-title">{{ img.title }}</div>
+            {% if img.source %}<div class="image-source">{{ img.source }}</div>{% endif %}
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+      {% endif %}
+    {% endif %}
+
+    {% if results.tab == 'videos' %}
+      {% if results.videos %}
+      <div class="video-grid">
+        {% for vid in results.videos %}
+        <article class="video-card">
+          <a href="{{ vid.content }}" rel="noopener noreferrer">
+            <div class="video-thumb">
+              {% set thumb = vid.images.small if vid.images is mapping else (vid.images[0] if vid.images else '') %}
+              {% if thumb %}
+              <img src="{{ thumb }}" alt="" referrerpolicy="no-referrer" loading="lazy">
+              {% endif %}
+              {% if vid.duration %}
+              <span class="video-duration">{{ vid.duration }}</span>
+              {% endif %}
+            </div>
+          </a>
+          <div class="video-meta">
+            <a class="video-title" href="{{ vid.content }}" rel="noopener noreferrer">{{ vid.title }}</a>
+            {% if vid.publisher or vid.uploader %}
+            <div class="video-publisher">{{ vid.publisher or vid.uploader }}</div>
+            {% endif %}
+            {% if vid.description %}
+            <p class="video-desc">{{ vid.description }}</p>
+            {% endif %}
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+      {% endif %}
+    {% endif %}
+
+    {% if results.tab == 'files' %}
+      {% if results.files %}
+      {% for file in results.files %}
+      <article class="file-item">
+        {% if file.thumbnail %}
+        <img class="file-thumb" src="{{ file.thumbnail }}" alt="" referrerpolicy="no-referrer" loading="lazy">
+        {% else %}
+        <div class="file-icon">{% if file.kind == 'book' %}BOOK{% else %}FILE{% endif %}</div>
+        {% endif %}
+        <div class="file-body">
+          <div class="result-url">{{ file.href }}</div>
+          <h3 class="result-title">
+            <a href="{{ file.href }}" rel="noopener noreferrer">{{ file.title }}</a>
+            {% if file.kind %}<span class="file-kind">{{ file.kind }}</span>{% endif %}
+          </h3>
+          {% if file.body %}<p class="result-snippet">{{ file.body }}</p>{% endif %}
+        </div>
+      </article>
+      {% endfor %}
+      {% endif %}
+    {% endif %}
+
+    {% set has_results = results.web or results.images or results.videos or results.files %}
+    {% if has_results or results.page > 1 %}
+    <nav class="pagination" aria-label="Pagination">
+      {% if results.page > 1 %}
+      <a class="page-link" href="{{ search_url(results.query, results.tab, results.page - 1, results.region, results.safesearch) }}">&larr; Previous</a>
+      {% else %}
+      <span class="page-link disabled">&larr; Previous</span>
+      {% endif %}
+
+      <span class="page-link disabled">Page {{ results.page }}</span>
+
+      {% if has_results %}
+      <a class="page-link" href="{{ search_url(results.query, results.tab, results.page + 1, results.region, results.safesearch) }}">Next &rarr;</a>
+      {% else %}
+      <span class="page-link disabled">Next &rarr;</span>
+      {% endif %}
+    </nav>
+    {% endif %}
+  </div>
+
+  {% if show_panel %}
+  {{ info_panel(results.info) }}
+  {% endif %}
+</div>
+
+<footer class="footer">
+</footer>
+{% endblock %}
